@@ -5,6 +5,7 @@ from prompts import greeting_prompt, info_prompts, fallback_prompt, end_prompt, 
 from chatbot import configure_gemini, generate_tech_questions_gemini, check_exit
 from utils import validate_email, validate_phone, save_candidate_data
 
+# Load your Gemini API key from .env
 load_dotenv()
 API_KEY = os.getenv("GOOGLE_API_KEY")
 configure_gemini(API_KEY)
@@ -12,11 +13,22 @@ configure_gemini(API_KEY)
 st.set_page_config(page_title="TalentScout Hiring Assistant", layout="centered")
 st.title("TalentScout Hiring Assistant 🤖")
 
+# Initialize session state
 if "step" not in st.session_state:
     st.session_state.step = 0
     st.session_state.candidate = {}
     st.session_state.conversation = [{"role": "assistant", "content": greeting_prompt()}]
     st.session_state.finished = False
+
+# Show the first input question automatically right after the greeting
+if (
+    len(st.session_state.conversation) == 1
+    and st.session_state.conversation[0]["role"] == "assistant"
+    and st.session_state.step == 0
+):
+    st.session_state.conversation.append(
+        {"role": "assistant", "content": info_prompts()[0]}
+    )
 
 user_input = st.chat_input("Type your message here...")
 
@@ -70,6 +82,7 @@ if user_input:
         else:
             st.session_state.conversation.append({"role": "assistant", "content": fallback_prompt()})
 
+# Display all messages
 for msg in st.session_state.conversation:
     with st.chat_message(msg["role"]):
         st.markdown(msg["content"])
