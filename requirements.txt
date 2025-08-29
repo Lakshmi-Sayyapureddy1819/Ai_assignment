@@ -3,8 +3,3 @@ google-generativeai
 python-dotenv
 
 
-
-
-
-
-z
